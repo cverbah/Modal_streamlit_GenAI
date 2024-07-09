@@ -36,10 +36,9 @@ try:
         file_details = {"FileName": uploaded_file.name, "FileType": uploaded_file.type, } #"FileSize": uploaded_file.size
         st.write(file_details)
 
-        with open("temp.csv", "wb") as f:
-            f.write(uploaded_file.getvalue())
-
-        temp_location = os.path.abspath("temp.csv")
+        #with open("temp.csv", "wb") as f:
+        #    f.write(uploaded_file.getvalue())
+        #temp_location = os.path.abspath("temp.csv")
 
         # Load file
         if 'df' not in st.session_state:
