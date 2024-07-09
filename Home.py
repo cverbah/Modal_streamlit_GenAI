@@ -9,7 +9,7 @@ st.set_page_config(
     page_icon=":robot_face:",
     layout="wide",
 )
-st.title(':wrench: Dashboard & LLMs Tests :wrench:')
+st.title(':wrench: LLMs Assistant Tests :wrench:')
 
 
 @st.cache_data
