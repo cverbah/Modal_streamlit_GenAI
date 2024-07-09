@@ -10,7 +10,22 @@ st.set_page_config(
     layout="wide",
 )
 st.title(':wrench: Dashboard & LLMs Tests :wrench:')
+@st.cache_data
+def load_dataframe(file_name, file):
+    if file_name.endswith('.csv'):
+        df = pd.read_csv(file, index_col=0)
 
+    elif file_name.endswith(('.xls', '.xlsx')):
+        df = pd.read_excel(file, engine='openpyxl')
+
+    else:
+        st.error(f"Error: {e}. Check your uploaded dataset")
+
+    df = df.convert_dtypes()
+    df.columns = (df.columns.str.replace(' ', '_').str.lower().
+                  str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
+
+    return df
 
 uploaded_file = st.file_uploader("Seleccione un archivo CSV o Excel para analizar", type=["xlsx", "xls", "csv"])
 
@@ -24,29 +39,18 @@ try:
 
         temp_location = os.path.abspath("temp.csv")
 
-        #Dataframe formatting
+        # Load file
         if 'df' not in st.session_state:
-            if uploaded_file.name.endswith('.csv'):
-                df = pd.read_csv(uploaded_file, index_col=0)
-                df = df.convert_dtypes()
-                df.columns = (df.columns.str.replace(' ', '_').str.lower().
-                              str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
-
-                # Save the data to session state
-                st.session_state.df = df
-
-            if uploaded_file.name.endswith(('.xls', '.xlsx')):
-                df = pd.read_excel(uploaded_file, engine='openpyxl')
-                df = df.convert_dtypes()
-                df.columns = (df.columns.str.replace(' ', '_').str.lower().
-                              str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
-                # Save the data to session state
-                st.session_state.df = df
+            df = load_dataframe(uploaded_file.name, uploaded_file)
+            st.session_state.df = df
+        else:
+            df = load_dataframe(uploaded_file.name, uploaded_file)
+            st.session_state.df = df
 
         st.subheader("DataFrame Head:")
-        st.dataframe(df.head(10))
+        st.dataframe(st.session_state.df.head(10))
 
         st.subheader("DataFrame Stats:")
-        st.dataframe(df.describe())
+        st.dataframe(st.session_state.df.describe())
 except Exception as e:
     st.error(f"Error: {e}. Check your uploaded dataset")

@@ -22,6 +22,7 @@ try:
     st.dataframe(df)
 except Exception as e:
     st.error(f'Error: {e}')
+    st.error(f'Intente cargando nuevamente el archivo')
 
 user_input = st.text_input("Que desea saber de la tabla?")
 if user_input:
@@ -32,7 +33,7 @@ if user_input:
                 response = analyze_table_gemini(query=user_input, df=df)
                 local_vars, output = execute_code(response, df=df)
                 #st.write(local_vars)
-                st.write('Snippet en Python:')
+                st.write('Snippet en Python: (Lo que se cocina por backend.. :male-cook:')
                 st.text(response)
             except Exception as e:
                 st.text('Error al ejecutar la query. Intente de nuevo modificando su consulta.')
