@@ -7,13 +7,12 @@ import vertexai.preview.generative_models as generative_models
 import matplotlib.pyplot as plt
 import io
 import contextlib
-
+from dotenv import load_dotenv
 # env
-#load_dotenv()
-#GOOGLE_API_KEY = os.environ['GCP_API_KEY']
+load_dotenv()
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
-PROJECT_ID = 'automatch-309218'
-LOCATION = "us-central1"
+PROJECT_ID = os.environ["PROJECT_ID"]
+LOCATION = os.environ["LOCATION"]
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 
 
