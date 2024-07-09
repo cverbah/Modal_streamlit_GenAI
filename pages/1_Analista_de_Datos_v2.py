@@ -16,10 +16,10 @@ st.set_page_config(
 
 st.title(':robot_face: Analista de datos')
 # Display DataFrame
-st.subheader("DataFrame cargado:")
+st.subheader("DataFrame cargado: (Mostrando máx primeras 1000 filas)")
 try:
     df = st.session_state.df
-    st.dataframe(df)
+    st.dataframe(df.iloc[:1000])
 except Exception as e:
     st.error(f'Error: {e}')
     st.error(f'Intente cargando nuevamente el archivo')

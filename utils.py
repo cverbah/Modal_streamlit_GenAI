@@ -52,8 +52,8 @@ def analyze_table_gemini(query: str, df: pd.DataFrame):
         generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
         generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
     }
-
-    df_parsed = df.to_string(index=False)
+    df_sample = df.sample(100, random_state=42)  # random sample. Little hack
+    df_parsed = df_sample.to_string(index=False)
     model = GenerativeModel(
         model_name="gemini-1.5-pro-001",
         system_instruction=[
