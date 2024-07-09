@@ -85,31 +85,3 @@ def analyze_table_gemini(query: str, df: pd.DataFrame):
     # for response in responses:
     #    print(response.text, end="")
     return responses.text
-
-
-def format_pricing_table(df):
-    df = df.iloc[:, :9]
-    df.columns = (df.columns.
-                  str.replace(' ', '_').
-                  str.lower().
-                  str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
-
-    df['sku'] = df['sku'].astype(str)
-    df['mas_bajo'] = df['mas_bajo'].apply(lambda row: int(row.replace('$ ', '').replace(',', '')))
-    df['mas_alto'] = df['mas_alto'].apply(lambda row: int(row.replace('$ ', '').replace(',', '')))
-    df['precio_mercado'] = df['precio_mercado'].apply(lambda row: int(row.replace('$ ', '').replace(',', '')))
-    df['precio_de_lista'] = df['precio_de_lista'].apply(lambda row: int(row.replace('$ ', '').replace(',', '')))
-    df = df.reset_index(drop=True)
-    return df
-
-
-def format_compete_table(df):
-    df.columns = (df.columns.
-                  str.replace(' ', '_').
-                  str.lower().
-                  str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
-
-    df['sku_tienda'] = df['sku_tienda'].astype(str)
-    df['fecha'] = pd.to_datetime(df['fecha'])
-    df = df.reset_index(drop=True)
-    return df
