@@ -33,7 +33,7 @@ if user_input:
                 response = analyze_table_gemini(query=user_input, df=df)
                 local_vars, output = execute_code(response, df=df)
                 #st.write(local_vars)
-                st.write('Snippet en Python: (Lo que se cocina por backend.. :male-cook:')
+                st.write('Snippet en Python: (Lo que se cocina por backend.. :male-cook: )')
                 st.text(response)
             except Exception as e:
                 st.text('Error al ejecutar la query. Intente de nuevo modificando su consulta.')
