@@ -11,7 +11,7 @@ st.set_page_config(
 )
 st.title(':wrench: LLMs Assistant Tests :wrench:')
 
-SESSION_TIMEOUT_MINUTES = 30
+SESSION_TIMEOUT_MINUTES = 15
 
 # Initialize session state variables
 if 'session_start' not in st.session_state:

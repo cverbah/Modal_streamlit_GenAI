@@ -40,6 +40,7 @@ streamlit_folder_mount = Mount.from_local_dir(local_path=streamlit_script_local_
     mounts=[streamlit_script_mount,
             streamlit_folder_mount,
             ],
+    timeout=900,
 )
 @web_server(8000)
 def run():
