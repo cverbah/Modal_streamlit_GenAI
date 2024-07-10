@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from ast import literal_eval
 from datetime import datetime, timedelta
+import json
 
 st.set_page_config(
     page_title="App LLMs Testing",
@@ -35,10 +36,23 @@ def reset_session():
 @st.cache_data
 def load_dataframe(file_name, file):
     if file_name.endswith('.csv'):
-        df = pd.read_csv(file, index_col=0)
+        try:
+            df = pd.read_csv(file, index_col=0)
+        except:
+            df = pd.read_csv(file, index_col=0, delimiter=';')
 
     elif file_name.endswith(('.xls', '.xlsx')):
-        df = pd.read_excel(file, engine='openpyxl')
+        # especial pa prueba con json col:
+        if 'piloto_catalogo' in file_name:
+            df = pd.read_excel(file, engine='openpyxl')
+
+            df['Información extendida'] = df['Información extendida'].apply(json.loads)
+            json_df = pd.json_normalize(df['Información extendida'])
+            df = df.drop(columns=['Información extendida'])
+            df = pd.concat([df, json_df], axis=1)
+
+        else:
+            df = pd.read_excel(file, engine='openpyxl')
 
     else:
         st.error(f"Error: {e}. Check your uploaded dataset")
