@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import seaborn as sns
+import plotly.graph_objects as go
 matplotlib.use('Agg')
 
 
@@ -16,7 +17,7 @@ st.set_page_config(
 
 st.title(':robot_face: Analista de datos')
 # Display DataFrame
-st.subheader("DataFrame cargado: (Mostrando máx primeras 1000 filas)")
+st.subheader("DataFrame cargado: (mostrando máx 1000 filas)")
 try:
     df = st.session_state.df
     st.dataframe(df.iloc[:1000])
@@ -30,23 +31,26 @@ if user_input:
     with col1:
         with st.spinner('Pensando...'):
             try:
-                response = analyze_table_gemini(query=user_input, df=df)
+                response = analyze_table_gemini(query=user_input, df=df, plot_type='plotly')
                 local_vars, output = execute_code(response, df=df)
-                #st.write(local_vars)
+
                 st.write('Python Snippet:')
                 st.text(response)
+
             except Exception as e:
                 st.text('Error al ejecutar la query. Intente de nuevo modificando su consulta.')
 
     with col2:
         try:
             st.write('Respuesta generada por IA:')
-            if 'plt.' in response:
+            #if 'plt.' in response:
+            if 'plotly.express' in response:
                 try:
                     st.write("Generated Plot:")
-                    fig = local_vars['plt'].gcf()
-                    #fig.set_size_inches(5, 5)
-                    st.pyplot(fig)
+                    fig = local_vars['fig']
+                    #fig = local_vars['plt']  # .gcf()
+                    #st.pyplot(fig)
+                    st.plotly_chart(fig)
                 except Exception as e:
                     try:
                         st.dataframe(local_vars['df_temp'])

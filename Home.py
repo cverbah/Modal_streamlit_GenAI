@@ -34,34 +34,35 @@ def reset_session():
     st.session_state.df = None
 
 @st.cache_data
-def load_dataframe(file_name, file):
-    if file_name.endswith('.csv'):
-        try:
-            df = pd.read_csv(file, index_col=0)
-        except:
-            df = pd.read_csv(file, index_col=0, delimiter=';')
+def load_dataframe(file_path: str, file):
+    try:
+        if file_path.endswith('.csv'):
+            try:
+                df = pd.read_csv(file, index_col=0)
+            except:
+                df = pd.read_csv(file, index_col=0, delimiter=';')
 
-    elif file_name.endswith(('.xls', '.xlsx')):
-        # especial pa prueba con json col:
-        if 'piloto_catalogo' in file_name:
+        elif file_path.endswith(('.xls', '.xlsx')):
+
             df = pd.read_excel(file, engine='openpyxl')
+            # especial pa prueba con json col:
+            if 'Información extendida' in df.columns:
+                df['Información extendida'] = df['Información extendida'].apply(json.loads)
+                json_df = pd.json_normalize(df['Información extendida'])
+                df = df.drop(columns=['Información extendida'])
+                df = pd.concat([df, json_df], axis=1)
 
-            df['Información extendida'] = df['Información extendida'].apply(json.loads)
-            json_df = pd.json_normalize(df['Información extendida'])
-            df = df.drop(columns=['Información extendida'])
-            df = pd.concat([df, json_df], axis=1)
+        df = df.convert_dtypes()
+        df.columns = (df.columns.str.replace(' ', '_').str.lower().
+                      str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
 
-        else:
-            df = pd.read_excel(file, engine='openpyxl')
+        return df
 
-    else:
-        st.error(f"Error: {e}. Check your uploaded dataset")
-
-    df = df.convert_dtypes()
-    df.columns = (df.columns.str.replace(' ', '_').str.lower().
-                  str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
-
-    return df
+    except Exception as e:
+        output = {
+            "error": str(e),
+        }
+        return output
 
 
 # Check session timeout

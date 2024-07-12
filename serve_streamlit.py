@@ -6,7 +6,7 @@ from modal import Image, Mount, App, web_server
 image = (Image.micromamba()
          .pip_install("streamlit~=1.35.0", "numpy==1.23.5", "pandas==1.5.3", "openpyxl==3.1.2",
                       "matplotlib==3.7.1", "seaborn==0.12.2","python-dotenv==1.0.0", "PyQt5==5.15.10",
-                      "google-cloud-aiplatform==1.48.0",
+                      "google-cloud-aiplatform==1.48.0", "plotly==5.14.0",
                       )
          )
 

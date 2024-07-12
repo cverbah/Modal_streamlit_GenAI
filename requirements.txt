@@ -8,4 +8,6 @@ modal==0.62.109
 openpyxl==3.1.2
 seaborn==0.12.2
 python-dotenv==1.0.0
+plotly==5.14.0
+
 
