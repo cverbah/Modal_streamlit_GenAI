@@ -52,6 +52,7 @@ def load_dataframe(file_path: str, file):
                 df = df.drop(columns=['Información extendida'])
                 df = pd.concat([df, json_df], axis=1)
 
+
         df = df.convert_dtypes()
         df.columns = (df.columns.str.replace(' ', '_').str.lower().
                       str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
