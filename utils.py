@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import io
 import contextlib
 from dotenv import load_dotenv
+from google.oauth2 import service_account
 import plotly.graph_objects as go
 
 # env
@@ -18,6 +19,29 @@ PROJECT_ID = os.environ["PROJECT_ID"]
 LOCATION = os.environ["LOCATION"]
 vertexai.init(project=PROJECT_ID, location=LOCATION)
 
+
+def set_credentials(credential_path):
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = credential_path
+    return service_account.Credentials.from_service_account_file(credential_path)
+
+
+def parse_df_competitividad(df: pd.DataFrame):
+    df['productPrices'] = df['productPrices'].apply(json.loads)
+    df['image'] = df['image'].apply(json.loads)
+    json_df_prices = pd.json_normalize(df['productPrices'])
+    json_df_image = pd.json_normalize(df['image'])
+    df = df.drop(columns=['productPrices', 'image', 'prices'])
+    df_parsed = pd.concat([df, json_df_prices, json_df_image], axis=1)
+    df_parsed = df_parsed.convert_dtypes()
+    df_parsed['stock'] = pd.to_numeric(df_parsed["stock"], errors='coerce')
+    df_parsed['price_index'] = pd.to_numeric(df_parsed["price_index"], errors='coerce')
+    df_parsed['final_price'] = pd.to_numeric(df_parsed["final_price"], errors='coerce')
+    df_parsed['normal_price'] = pd.to_numeric(df_parsed["normal_price"], errors='coerce')
+    df_parsed['last_final_price'] = pd.to_numeric(df_parsed["last_final_price"], errors='coerce')
+    df_parsed.columns = (df_parsed.columns.str.replace(' ', '_').str.lower().
+                  str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
+
+    return df_parsed
 
 def parse_null_list(value):
     if pd.isnull(value):

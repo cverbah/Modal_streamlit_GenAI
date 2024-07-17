@@ -4,6 +4,10 @@ import os
 from ast import literal_eval
 from datetime import datetime, timedelta
 import json
+from google.oauth2 import service_account
+from google.cloud import bigquery
+from datetime import date
+from utils import parse_df_competitividad
 
 st.set_page_config(
     page_title="App LLMs Testing",
@@ -66,29 +70,84 @@ def load_dataframe(file_path: str, file):
         return output
 
 
+@st.cache_data
+def load_big_query_dataframe(client_id: str, dataset_name: str, table_name: str, limit=10000):
+    try:
+        credentials = service_account.Credentials.from_service_account_file('key2.json')
+        client = bigquery.Client(credentials=credentials)
+        today = date.today()
+        today = today.strftime("%Y-%m-%d")
+
+        QUERY = (
+            f'SELECT * FROM `extracciones-303705.{dataset_name}.{table_name}` '
+            f'WHERE client_id = "{client_id}" AND TIMESTAMP_TRUNC(_PARTITIONTIME, DAY) = TIMESTAMP("{today}")'
+            f'LIMIT {limit}')  # 500K rows del total (?)
+
+        query_job = client.query(QUERY)  # API request
+        rows = query_job.result()  # Waits for query to finish
+        df = query_job.to_dataframe()
+
+        return df
+
+    except Exception as e:
+        output = {
+            "error": str(e),
+        }
+        return output
+
+
 # Check session timeout
 if check_session_timeout():
-
-    uploaded_file = st.file_uploader("Seleccione un archivo CSV o Excel para analizar", type=["xlsx", "xls", "csv"])
-
+    option = st.selectbox("Tipo de tabla:", ["Upload", "BigQuery"])
     try:
-        if uploaded_file:
-            file_details = {"FileName": uploaded_file.name, "FileType": uploaded_file.type, } #"FileSize": uploaded_file.size
-            st.write(file_details)
+        if option == 'Upload':
 
-            # Load file
-            if 'df' not in st.session_state:
-                df = load_dataframe(uploaded_file.name, uploaded_file)
-                st.session_state.df = df
-            else:
-                df = load_dataframe(uploaded_file.name, uploaded_file)
-                st.session_state.df = df
+            uploaded_file = st.file_uploader("Seleccione un archivo CSV o Excel para analizar", type=["xlsx", "xls", "csv"])
 
-            st.subheader("DataFrame Head:")
-            st.dataframe(st.session_state.df.head(10))
+            try:
+                if uploaded_file:
+                    file_details = {"FileName": uploaded_file.name, "FileType": uploaded_file.type, } #"FileSize": uploaded_file.size
+                    st.write(file_details)
 
-            st.subheader("DataFrame Stats:")
-            st.dataframe(st.session_state.df.describe())
+                    # Load file
+                    if 'df' not in st.session_state:
+                        df = load_dataframe(uploaded_file.name, uploaded_file)
+                        st.session_state.df = df
+                    else:
+                        df = load_dataframe(uploaded_file.name, uploaded_file)
+                        st.session_state.df = df
+
+                    st.subheader("DataFrame Head:")
+                    st.dataframe(st.session_state.df.head(10))
+
+                    st.subheader("DataFrame Stats:")
+                    st.dataframe(st.session_state.df.describe())
+
+            except Exception as e:
+                st.error(f"Error: {e}. Check your uploaded dataset")
+
+        if option == "BigQuery":
+            client_id = st.selectbox("Client ID:", [1,2,3,4,5,6,7,8,9,10])
+            dataset_name = st.selectbox("Dataset", ["competitividad", "dummy"])
+            table_name = st.selectbox("Table", ["", "matches", "dummy"], index=0)
+            if table_name != "":
+                # Load file
+                if 'df' not in st.session_state:
+
+                    df = load_big_query_dataframe(client_id=client_id, dataset_name=dataset_name, table_name=table_name)
+                    df = parse_df_competitividad(df)
+                    st.session_state.df = df
+                else:
+                    df = load_big_query_dataframe(client_id=client_id, dataset_name=dataset_name, table_name=table_name)
+                    df = parse_df_competitividad(df)
+                    st.session_state.df = df
+
+                st.subheader("DataFrame Head:")
+                st.dataframe(st.session_state.df.head(10))
+
+                st.subheader("DataFrame Stats:")
+                st.dataframe(st.session_state.df.describe())
+
     except Exception as e:
         st.error(f"Error: {e}. Check your uploaded dataset")
 
