@@ -75,7 +75,7 @@ def load_big_query_dataframe(client_id: str, dataset_name: str, table_name: str,
     try:
         credentials = service_account.Credentials.from_service_account_file('key2.json')
         client = bigquery.Client(credentials=credentials)
-        today = date.today()
+        today = date.today() - timedelta(days=1)
         today = today.strftime("%Y-%m-%d")
 
         QUERY = (
