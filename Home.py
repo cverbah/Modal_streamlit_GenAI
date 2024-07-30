@@ -10,11 +10,11 @@ from datetime import date
 from utils import parse_df_competitividad
 
 st.set_page_config(
-    page_title="App LLMs Testing",
+    page_title="Demo AI Assistant",
     page_icon=":robot_face:",
     layout="wide",
 )
-st.title(':wrench: LLMs Assistant Tests :wrench:')
+st.title(':wrench: Carga de tablas - DEMO :wrench:')
 
 SESSION_TIMEOUT_MINUTES = 15
 

@@ -11,6 +11,7 @@ import contextlib
 from dotenv import load_dotenv
 from google.oauth2 import service_account
 import plotly.graph_objects as go
+import streamlit as st
 
 # env
 load_dotenv()
@@ -18,6 +19,11 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
 PROJECT_ID = os.environ["PROJECT_ID"]
 LOCATION = os.environ["LOCATION"]
 vertexai.init(project=PROJECT_ID, location=LOCATION)
+
+
+def submit_query():
+    st.session_state.user_input = st.session_state.widget
+    st.session_state.widget = ''
 
 
 def set_credentials(credential_path):
@@ -49,6 +55,8 @@ def parse_null_list(value):
         return parse
     else:
         return value
+
+
 
 
 def execute_code(snippet, df: pd.DataFrame):
