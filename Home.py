@@ -48,7 +48,7 @@ def load_dataframe(file_path: str, file):
 
         elif file_path.endswith(('.xls', '.xlsx')):
 
-            df = pd.read_excel(file, engine='openpyxl')
+            df = pd.read_excel(file, engine='openpyxl', index_col=0)
             # especial pa prueba con json col:
             if 'Información extendida' in df.columns:
                 df['Información extendida'] = df['Información extendida'].apply(json.loads)
@@ -98,7 +98,7 @@ def load_big_query_dataframe(client_id: str, dataset_name: str, table_name: str,
 
 # Check session timeout
 if check_session_timeout():
-    option = st.selectbox("Tipo de tabla:", ["Upload", "BigQuery"])
+    option = st.selectbox("Tipo de tabla:", ["Upload"])
     try:
         if option == 'Upload':
 
@@ -125,28 +125,6 @@ if check_session_timeout():
 
             except Exception as e:
                 st.error(f"Error: {e}. Check your uploaded dataset")
-
-        if option == "BigQuery":
-            client_id = st.selectbox("Client ID:", [1,2,3,4,5,6,7,8,9,10])
-            dataset_name = st.selectbox("Dataset", ["competitividad", "dummy"])
-            table_name = st.selectbox("Table", ["", "matches", "dummy"], index=0)
-            if table_name != "":
-                # Load file
-                if 'df' not in st.session_state:
-
-                    df = load_big_query_dataframe(client_id=client_id, dataset_name=dataset_name, table_name=table_name)
-                    df = parse_df_competitividad(df)
-                    st.session_state.df = df
-                else:
-                    df = load_big_query_dataframe(client_id=client_id, dataset_name=dataset_name, table_name=table_name)
-                    df = parse_df_competitividad(df)
-                    st.session_state.df = df
-
-                st.subheader("DataFrame Head:")
-                st.dataframe(st.session_state.df.head(10))
-
-                st.subheader("DataFrame Stats:")
-                st.dataframe(st.session_state.df.describe())
 
     except Exception as e:
         st.error(f"Error: {e}. Check your uploaded dataset")

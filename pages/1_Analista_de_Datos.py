@@ -92,4 +92,4 @@ try:
         st.write('#todo')
 
 except Exception as e:
-    st.text('Error al ejecutar la query. Intente de nuevo modificando su consulta.')
+    st.warning('Cargue una tabla en Home, antes de usar el asistente')
