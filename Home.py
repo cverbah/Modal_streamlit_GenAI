@@ -49,43 +49,10 @@ def load_dataframe(file_path: str, file):
         elif file_path.endswith(('.xls', '.xlsx')):
 
             df = pd.read_excel(file, engine='openpyxl', index_col=0)
-            # especial pa prueba con json col:
-            if 'Información extendida' in df.columns:
-                df['Información extendida'] = df['Información extendida'].apply(json.loads)
-                json_df = pd.json_normalize(df['Información extendida'])
-                df = df.drop(columns=['Información extendida'])
-                df = pd.concat([df, json_df], axis=1)
-
 
         df = df.convert_dtypes()
         df.columns = (df.columns.str.replace(' ', '_').str.lower().
                       str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8'))
-
-        return df
-
-    except Exception as e:
-        output = {
-            "error": str(e),
-        }
-        return output
-
-
-@st.cache_data
-def load_big_query_dataframe(client_id: str, dataset_name: str, table_name: str, limit=10000):
-    try:
-        credentials = service_account.Credentials.from_service_account_file('key2.json')
-        client = bigquery.Client(credentials=credentials)
-        today = date.today() - timedelta(days=1)
-        today = today.strftime("%Y-%m-%d")
-
-        QUERY = (
-            f'SELECT * FROM `extracciones-303705.{dataset_name}.{table_name}` '
-            f'WHERE client_id = "{client_id}" AND TIMESTAMP_TRUNC(_PARTITIONTIME, DAY) = TIMESTAMP("{today}")'
-            f'LIMIT {limit}')  # 500K rows del total (?)
-
-        query_job = client.query(QUERY)  # API request
-        rows = query_job.result()  # Waits for query to finish
-        df = query_job.to_dataframe()
 
         return df
 
